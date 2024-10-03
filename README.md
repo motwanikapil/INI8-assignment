@@ -1,6 +1,6 @@
 # INI8 Labs Private Limited Assignment
 
-- Step 1. First download the project as zip
+- Step 1. First download the project as zip and open the terminal in the same folder and type the following command.
 
 ```sh
 yarn

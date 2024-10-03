@@ -48,6 +48,7 @@ const reducer = (state, action) => {
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState)
   const [editMode, setEditMode] = useState(null)
+  const [filter, setFilter] = useState(null)
 
   return (
     <main>
@@ -57,26 +58,52 @@ function App() {
         </em>
       </header>
       <section className="px-10">
-        <NewTodo
-          onAddTodo={(todo) => dispatch({ type: 'TODO_CREATE', payload: todo })}
-        />
+        <div className="flex justify-between">
+          <NewTodo
+            onAddTodo={(todo) =>
+              dispatch({ type: 'TODO_CREATE', payload: todo })
+            }
+          />
+          <select
+            name="filter"
+            id="filter"
+            onChange={(e) => {
+              const value = e.target.value
+              if (value === 'null') {
+                setFilter(null)
+              } else {
+                setFilter(e.target.value === 'true')
+              }
+            }}
+            placeholder="All"
+            className="px-4 py-2 w-64 border-2 border-black rounded-md"
+          >
+            <option value="null">All</option>
+            <option value="true">Completed</option>
+            <option value="false">Incomplete</option>
+          </select>
+        </div>
         {/* All todos */}
         <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-5">
-          {state.map((todo) => (
-            <Todo
-              todo={todo}
-              key={todo.id}
-              onCompleted={(id) => {
-                dispatch({ type: 'TODO_COMPLETED', payload: id })
-              }}
-              onEditTodo={(todo) =>
-                dispatch({ type: 'TODO_UPDATE', payload: todo })
-              }
-              onDelete={(id) => dispatch({ type: 'TODO_DELETE', payload: id })}
-              editMode={editMode}
-              setEditMode={setEditMode}
-            />
-          ))}
+          {state
+            .filter((el) => filter === null || el.isCompleted === filter)
+            .map((todo) => (
+              <Todo
+                todo={todo}
+                key={todo.id}
+                onCompleted={(id) => {
+                  dispatch({ type: 'TODO_COMPLETED', payload: id })
+                }}
+                onEditTodo={(todo) =>
+                  dispatch({ type: 'TODO_UPDATE', payload: todo })
+                }
+                onDelete={(id) =>
+                  dispatch({ type: 'TODO_DELETE', payload: id })
+                }
+                editMode={editMode}
+                setEditMode={setEditMode}
+              />
+            ))}
         </ul>
       </section>
     </main>
@@ -92,7 +119,7 @@ function Todo({
   setEditMode,
 }) {
   const isEditOn = editMode === todo.id
-  const { isCompleted } = todo
+  const { isCompleted, filter } = todo
   return (
     <li className="border-2 border-slate-800 px-3 py-2 h-64 rounded-md">
       {!isEditOn && (
@@ -145,7 +172,7 @@ function NewTodo({ onAddTodo }) {
   const titleRef = useRef()
   return (
     <form
-      className="grid grid-cols-3 gap-2"
+      className="flex gap-2 w-full me-3"
       onSubmit={(e) => {
         e.preventDefault()
         onAddTodo({
@@ -165,7 +192,7 @@ function NewTodo({ onAddTodo }) {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Enter title"
-        className="border-2 border-slate-800 px-4 py-2 rounded-xl"
+        className="border-2 border-slate-800 px-4 py-2 rounded-xl w-6/12"
         ref={titleRef}
         required
       />
@@ -175,10 +202,10 @@ function NewTodo({ onAddTodo }) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Enter content"
-        className="border-2 border-slate-800 px-4 py-2 rounded-xl"
+        className="border-2 border-slate-800 px-4 py-2 rounded-xl w-6/12"
         required
       />
-      <button className="px-4 py-2 text-white bg-blue-400 hover:bg-blue-500 rounded-xl w-1/2">
+      <button className="px-4 py-2 text-white bg-blue-400 hover:bg-blue-500 rounded-xl w-52">
         + Add Todo
       </button>
     </form>
